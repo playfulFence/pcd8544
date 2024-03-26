@@ -259,6 +259,28 @@ where
         self.clk.set_high()?;
         self.clk.set_low()
     }
+
+    pub fn set_pixel(&mut self, x: u8, y: u8) -> Result<(), ERR> {
+        if x >= WIDTH || y >= HEIGHT {
+            panic!("Wrong width or hight for PCD8544");
+        }
+
+          // Calculate the bank and bit position
+          let bank = y / 8; // Each bank is 8 rows high
+          let bit_position = y % 8;
+  
+          // Determine the byte value to write based on the desired pixel value
+          let byte_value = 1 << bit_position;
+  
+          // Set the X and Y address in the display RAM
+          self.set_x_position(x)?;
+          self.set_y_position(bank)?;
+  
+          // Write the byte to the display
+          // This will set or clear the entire 8-pixel vertical bank at once, not just one pixel
+          self.write_data(byte_value)
+    }
+
 }
 
 fn char_to_bytes(char: char) -> &'static [u8] {
